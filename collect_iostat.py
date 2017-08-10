@@ -35,7 +35,7 @@ for line in f:
         if not m:
             continue
         cpu = C.CpuStat(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6))
-    elif len(io.keys()) == 5:
+    elif len(io.keys()) == 6:
         stats.append(Stat(ts, cpu, io));
         ts = None
         cpu = None
@@ -50,7 +50,7 @@ def write_rrd(cmd, stat_tuple, rrd_fname, ts):
     if rrd_fname not in cmd:
         template = ':'.join(stat_tuple._fields)
         cmd[rrd_fname] = ['rrdtool', 'update', os.path.join(C.rrd_path, rrd_fname), '--template', template, '--']
-    values = ':'.join(str(v).replace(',', '.') for v in stat_tuple)
+    values = ':'.join(stat_tuple).replace(',', '.')
     cmd[rrd_fname].append(str(int(time.mktime(ts.timetuple()))) + ':' + values)
 
 cmd = {}
@@ -60,6 +60,7 @@ for stat in stats:
         write_rrd(cmd, io, 'hdd_' + drive + '.rrd', stat.ts)
 
 for c in cmd.values():
+#    print c
     assert Popen(c).wait() == 0
 
 if stats:

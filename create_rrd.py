@@ -19,9 +19,10 @@ def mk_rrd(struct, fname, *args):
 #    print(cmd)
     assert subprocess.Popen(cmd).wait() == 0
 
-mk_rrd(C.CpuStat, 'cpu.rrd', '--start', '1501240248')
-for drive in ['a', 'b', 'c', 'd', 'e', 'f']:
-    mk_rrd(C.IoStat, 'hdd_sd{}.rrd'.format(drive), '--start', '1501240248')
-mk_rrd(C.CpuLa, 'cpu_la.rrd')
-mk_rrd(C.Traffic, 'traffic.rrd')
-mk_rrd(C.Sockets, 'sockets.rrd')
+#mk_rrd(C.CpuStat, 'cpu.rrd')
+#for drive in ['a', 'b', 'c', 'd', 'e', 'f']:
+#    mk_rrd(C.IoStat, 'hdd_sd{}.rrd'.format(drive))
+#mk_rrd(C.CpuLa, 'cpu_la.rrd')
+#mk_rrd(C.Traffic, 'traffic.rrd')
+#mk_rrd(C.Sockets, 'sockets.rrd')
+mk_rrd(C.Ups, 'ups.rrd')
