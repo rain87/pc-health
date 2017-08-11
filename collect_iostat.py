@@ -14,10 +14,10 @@ stats = []
 
 iostat_fname = '/var/log/iostat.log'
 
-number_patern = '(\d+[\.,]\d+)'
+number_pattern = '(\d+[\.,]\d+)'
 ts_rx = re.compile('(\d\d)\.(\d\d)\.(\d\d) (\d\d):(\d\d):(\d\d)')
-cpu_rx = re.compile('\s*' + '\s+'.join([number_patern] * 6))
-io_rx = re.compile('(sd\w)\s+' + '\s+'.join([number_patern] * 13))
+cpu_rx = re.compile('\s*' + '\s+'.join([number_pattern] * len(C.CpuStat._fields)))
+io_rx = re.compile('(sd\w)\s+' + '\s+'.join([number_pattern] * len(C.IoStat._fields)))
 
 ts = None
 cpu = None
@@ -28,13 +28,14 @@ for line in f:
         m = ts_rx.match(line)
         if not m:
             continue
-        ts = datetime(year=2000 + int(m.group(3)), month=int(m.group(2)), day=int(m.group(1)), hour=int(m.group(4)), minute=int(m.group(5)), second=int(m.group(6)))
+        ts = datetime(year=2000 + int(m.group(3)), month=int(m.group(2)), day=int(m.group(1)),
+            hour=int(m.group(4)), minute=int(m.group(5)), second=int(m.group(6)))
         #ts = datetime.strptime(line, '%m/%d/%y %H:%M:%S')
     elif cpu is None:
         m = cpu_rx.match(line)
         if not m:
             continue
-        cpu = C.CpuStat(m.group(1), m.group(2), m.group(3), m.group(4), m.group(5), m.group(6))
+        cpu = C.CpuStat(*[m.group(i) for i in range(1, 1 + len(C.CpuStat._fields))])
     elif len(io.keys()) == 6:
         stats.append(Stat(ts, cpu, io));
         ts = None
@@ -43,7 +44,7 @@ for line in f:
     else:
         m = io_rx.match(line)
         if m:
-            io[m.group(1)] = C.IoStat(m.group(2), m.group(3), m.group(4), m.group(5), m.group(6), m.group(7), m.group(8), m.group(9), m.group(10), m.group(11), m.group(12), m.group(13), m.group(14))
+            io[m.group(1)] = C.IoStat(*[m.group(i) for i in range(2, 2 + len(C.IoStat._fields))])
 f.close()
 
 def write_rrd(cmd, stat_tuple, rrd_fname, ts):

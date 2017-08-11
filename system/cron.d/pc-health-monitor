@@ -4,8 +4,4 @@ SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 SCRIPTS_DIR=/home/rain87/projects/pc-health
 
-* * * * *	root	$SCRIPTS_DIR/collect_iostat.py
-* * * * *	root	$SCRIPTS_DIR/collect_traffic.py
-* * * * *	root	$SCRIPTS_DIR/collect_la.py
-* * * * *	root	$SCRIPTS_DIR/collect_sockets.py
-* * * * *	root	$SCRIPTS_DIR/collect_ups.py
+* * * * *	root	cd $SCRIPTS_DIR; ./collect-all.sh
