@@ -5,3 +5,9 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 SCRIPTS_DIR=/home/rain87/projects/pc-health
 
 * * * * *	root	cd $SCRIPTS_DIR; ./collect-all.sh
+*/20 * * * *	root	$SCRIPTS_DIR/create_graph.py hourly
+0 * * * *    root    $SCRIPTS_DIR/create_graph.py optimal
+1 */6 * * *    root    $SCRIPTS_DIR/create_graph.py daily
+2 1 * * *    root    $SCRIPTS_DIR/create_graph.py weekly
+2 1 * * *    root    $SCRIPTS_DIR/create_graph.py montly
+2 1 * * *    root    $SCRIPTS_DIR/create_graph.py yearly

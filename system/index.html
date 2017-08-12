@@ -1,0 +1,37 @@
+<html>
+<head>
+<title>PC health metrics</title>
+</head>
+<script>
+function switchImages(interval) {
+	var images = document.getElementsByTagName('img');
+	for (var i = 0; i < images.length; ++i) {
+		var img = images[i];
+		img.src = img.alt + '_' + interval + '.svgz';
+	}
+}
+</script>
+<body onload="switchImages('optimal')">
+<p>Switch view: <a href=# onclick='javascript:switchImages("hourly")'>hourly</a>
+<a href=# onclick='javascript:switchImages("optimal")'>optimal</a>
+<a href=# onclick='javascript:switchImages("daily")'>daily</a>
+<a href=# onclick='javascript:switchImages("weekly")'>weekly</a>
+<a href=# onclick='javascript:switchImages("monthly")'>monthly</a>
+<a href=# onclick='javascript:switchImages("yearly")'>yearly</a>
+</p>
+<table>
+	<tr><td><img alt='cpu_load'/></td><td><img alt='cpu_la'/></td></tr>
+	<tr><td><img alt='traffic_out_bytes'/></td><td><img alt='traffic_in_bytes'/></td></tr>
+	<tr><td><img alt='traffic_out_pckts'/></td><td><img alt='traffic_in_pckts'/></td></tr>
+	<tr><td><img alt='hdd_rrqm_s'/></td><td><img alt='hdd_wrqm_s'/></td></tr>
+	<tr><td><img alt='hdd_r_s'/></td><td><img alt='hdd_w_s'/></td></tr>
+	<tr><td><img alt='hdd_rkB_s'/></td><td><img alt='hdd_wkB_s'/></td></tr>
+	<tr><td><img alt='hdd_avgrq_sz'/></td><td><img alt='hdd_avgqu_sz'/></td></tr>
+	<tr><td><img alt='hdd_r_await'/></td><td><img alt='hdd_w_await'/></td></tr>
+	<tr><td><img alt='hdd_svctm'/></td><td><img alt='hdd_util'/></td></tr>
+	<tr><td><img alt='hdd_await'/></td><td><img alt='sockets'/></td></tr>
+	<tr><td><img alt='ups_v'/></td><td><img alt='ups_load'/></td></tr>
+	<tr><td><img alt='ups_misc'/></td><td> <!-- <img alt=''/> --></td></tr>
+</table>
+</body>
+</html>
