@@ -20,7 +20,7 @@ def try_match(line, rx, l):
         return True
     return False
 
-iptables = subprocess.Popen(['sudo', 'iptables', '-xnvL', '-Z'], stdout=subprocess.PIPE)
+iptables = subprocess.Popen(['sudo', 'iptables', '-xnvL'], stdout=subprocess.PIPE)
 while True:
     line = iptables.stdout.readline()
     if not line:
