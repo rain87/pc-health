@@ -53,7 +53,7 @@ graph_intervals = {
     'optimal': 'now-400m',
     'daily': 'now-1d',
     'weekly': 'now-1w',
-    'monthly': 'now-1m',
+    'monthly': 'now-30d',
     'yearly': 'now-1y'
 }
 
