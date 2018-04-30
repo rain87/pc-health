@@ -23,11 +23,21 @@ def traffic_ds(units, direction):
             field='{proto}_{units}_{direction}'.format(proto=proto, units=units, direction=direction),
             legend='{}-{}'.format(dev, proto.upper()),
             is_area=True, color=color.next())
-                for dev, proto in itertools.product(['tun{}'.format(i) for i in range(1, 6)], ['tcp', 'udp', 'all'])
+        for dev, proto in itertools.product(['tun{}'.format(i) for i in range(1, 6)], ['tcp', 'udp', 'all'])
     ] + [
          DataSource('traffic_eth0.rrd', 'tcp_{units}_{direction}'.format(units=units, direction=direction), '', False, ''),
          DataSource('traffic_eth0.rrd', 'udp_{units}_{direction}'.format(units=units, direction=direction), '', False, '', True),
          DataSource('traffic_eth0.rrd', 'all_{units}_{direction}'.format(units=units, direction=direction), 'eth0', False, '#000000', True)
+    ]
+
+def connections_ds(direction):
+    color = itertools.cycle(graph_colors[:2])
+    return [
+        DataSource(db_fname='traffic_{dev}.rrd'.format(dev=dev),
+            field='{proto}_new_{direction}'.format(proto=proto, direction=direction),
+            legend='{}-{}'.format(dev, proto),
+            is_area=True, color=color.next())
+        for dev, proto in itertools.product(C.network_devices, ['tcp', 'udp'])
     ]
 
 graphs = [
@@ -50,6 +60,8 @@ graphs = [
     Graph('traffic_out_bytes', 'Outgoing traffic', 'bytes/s', traffic_ds('bytes', 'out')),
     Graph('traffic_in_pckts', 'Incoming traffic', 'packets/s', traffic_ds('pckts', 'in')),
     Graph('traffic_out_pckts', 'Outgoing traffic', 'packets/s', traffic_ds('pckts', 'out')),
+    Graph('incoming_connections', 'Incoming connections', 'count', connections_ds('in')),
+    Graph('outgoing_connections', 'Outgoing connections', 'count', connections_ds('out')),
     Graph('sockets', 'Sockets', 'sockets',
         [ DataSource('sockets.rrd', field, field, True) for field in 'estab closed orphaned synrecv tw tw2'.split(' ') ] +\
         [ DataSource('sockets.rrd', field, field, False) for field in 'total tcp ports'.split(' ') ]),
