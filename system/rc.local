@@ -13,8 +13,8 @@
 
 /sbin/ifconfig eth0 txqueuelen 5000
 
-iptables-restore < /etc/iptables/rules.v4
-iptables -t filter -Z
+/home/rain87/projects/pc-health/collect_traffic.py reset
+/home/rain87/projects/pc-health/iptables-init
 iostat -x 60 -y -t | while read line; do echo "$line" >> /var/log/iostat.log ; done &
 
 exit 0

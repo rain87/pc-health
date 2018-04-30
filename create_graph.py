@@ -76,8 +76,8 @@ def plot(graph, interval):
     if graph.vlabel:
         cmd += ['--vertical-label', graph.vlabel]
     ds_list = graph.ds if isinstance(graph.ds, list) else [graph.ds]
+    color = itertools.cycle(graph_colors)
     for i in range(0, len(ds_list)):
-        color = itertools.cycle(graph_colors)
         ds = ds_list[i]
         cmd.append('DEF:v{i}={db}:{field}:AVERAGE'.format(i=i, db=os.path.join(C.rrd_path, ds.db_fname), field=ds.field))
         cmd.append('{type}:v{i}{color}:{legend}{stack}'.format(
