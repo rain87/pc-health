@@ -4,40 +4,61 @@ import rrd_config as C
 import re
 import subprocess
 import os
+import sys
 
-tcp_rx = re.compile('\s*(\d+)\s+(\d+)\s+ACCEPT\s+tcp')
-udp_rx = re.compile('\s*(\d+)\s+(\d+)\s+ACCEPT\s+udp')
-all_rx = re.compile('\s*(\d+)\s+(\d+)\s+ACCEPT\s+all')
+devices = set(C.network_devices)
 
-tcp = []
-udp = []
-all = []
+if len(sys.argv) > 1 and sys.argv[1] == 'reset':
+    def reset_stat(dev):
+        assert subprocess.Popen(['rrdtool', 'update', os.path.join(C.rrd_path, 'traffic_{dev}.rrd'.format(dev=dev)),
+            '--template', ':'.join(C.Traffic._fields), '--',
+            'N' + ':U' * len(C.Traffic._fields)]).wait() == 0
+    map(reset_stat, devices)
+    sys.exit(0)
 
-def try_match(line, rx, l):
-    m = rx.match(line)
-    if m:
-        l.append((m.group(1), m.group(2)))
-        return True
-    return False
+#                      1       2                         3              4           5
+rx = re.compile('^\s*(\d+)\s+(\d+)\s+(?:ACCEPT|)\s+(tcp|udp|all).*(tun\d|eth\d).*?(NEW|)$')
+input = dict()
+output = dict()
+target = None
 
 iptables = subprocess.Popen(['sudo', 'iptables', '-xnvL'], stdout=subprocess.PIPE)
+#iptables = subprocess.Popen(['cat', 'test_ipt'], stdout=subprocess.PIPE)
 while True:
     line = iptables.stdout.readline()
     if not line:
         break
-    if try_match(line, tcp_rx, tcp):
-        None
-    elif try_match(line, udp_rx, udp):
-        None
-    else:
-        try_match(line, all_rx, all)
+    if line.startswith('Chain INPUT'):
+        target = input
+        continue
+    if line.startswith('Chain OUTPUT'):
+        target = output
+        continue
+    m = rx.match(line)
+    if not m:
+        continue
+    dev = m.group(4)
+    if not dev in target:
+        target[dev] = []
+    target[dev].append([m.group(i) for i in [1, 2, 3, 5]])
 
-assert len(tcp) == 2
-assert len(udp) == 2
-assert len(all) == 2
+assert set(input.keys()) == devices
+assert set(output.keys()) == devices
 
-traf = C.Traffic(tcp[0][1], tcp[1][1], udp[0][1], udp[1][1], all[0][1], all[1][1],
-tcp[0][0], tcp[1][0], udp[0][0], udp[1][0], all[0][0], all[1][0])
-assert subprocess.Popen(['rrdtool', 'update', os.path.join(C.rrd_path, 'traffic.rrd'),
-    '--template', ':'.join(traf._fields), '--',
-    'N:' + ':'.join(traf)]).wait() == 0
+def get_traffic(input, output):
+    kw = dict()
+    def pack_values(v, direction):
+        if v[3]:
+            kw["{proto}_new_{direction}".format(proto=v[2], direction=direction)] = v[0]
+        else:
+            kw["{proto}_bytes_{direction}".format(proto=v[2], direction=direction)] = v[1]
+            kw["{proto}_pckts_{direction}".format(proto=v[2], direction=direction)] = v[0]
+
+    map(lambda values: pack_values(values, 'in'), input)
+    map(lambda values: pack_values(values, 'out'), output)
+    return C.Traffic(**kw)
+
+for dev in input.keys():
+    assert subprocess.Popen(['rrdtool', 'update', os.path.join(C.rrd_path, 'traffic_{dev}.rrd'.format(dev=dev)),
+        '--template', ':'.join(C.Traffic._fields), '--',
+        'N:' + ':'.join(get_traffic(input[dev], output[dev]))]).wait() == 0

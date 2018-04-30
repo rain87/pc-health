@@ -23,6 +23,6 @@ mk_rrd(C.CpuStat, 'cpu.rrd')
 for drive in ['a', 'b', 'c', 'd', 'e', 'f']:
     mk_rrd(C.IoStat, 'hdd_sd{}.rrd'.format(drive))
 mk_rrd(C.CpuLa, 'cpu_la.rrd')
-mk_rrd(C.Traffic, 'traffic.rrd', 'COUNTER')
+map(lambda dev: mk_rrd(C.Traffic, 'traffic_{dev}.rrd'.format(dev=dev), 'COUNTER'), C.network_devices)
 mk_rrd(C.Sockets, 'sockets.rrd')
 mk_rrd(C.Ups, 'ups.rrd')

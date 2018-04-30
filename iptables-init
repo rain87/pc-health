@@ -1,0 +1,20 @@
+#!/bin/bash
+
+iptables -F INPUT
+iptables -F OUTPUT
+
+function setup {
+  iptables -A $1 -p tcp -m state --state NEW
+  iptables -A $1 -p udp -m state --state NEW
+  iptables -A $1 -p tcp -j ACCEPT
+  iptables -A $1 -p udp -j ACCEPT
+  iptables -A $1 -j ACCEPT
+}
+
+for i in 1 2 3 4 5
+do
+  setup "INPUT -i tun$i"
+  setup "OUTPUT -o tun$i"
+done
+setup "INPUT -i eth0"
+setup "OUTPUT -o eth0"
