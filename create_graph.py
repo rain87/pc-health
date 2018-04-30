@@ -6,18 +6,30 @@ import subprocess
 from collections import namedtuple
 import gzip
 import sys
+import itertools
 
-DataSource = namedtuple('DataSource', 'db_fname field legend is_area')
+DataSource = namedtuple('DataSource', 'db_fname field legend is_area color stack')
+DataSource.__new__.__defaults__ = (False, None, False)
 Graph = namedtuple('Graph', 'fname title vlabel ds')
+graph_colors = [ '#396AB1', '#DA7C30', '#3E9651', '#CC2529', '#535154', '#6B4C9A', '#922428', '#948B3D', '#00adb5', '#f08a5d' ]
 
 def hdd_ds(field):
     return [ DataSource('hdd_sd' + d + '.rrd', field, 'sd' + d, False) for d in 'abcdef' ]
 
 def traffic_ds(units, direction):
-    return [ DataSource('traffic.rrd', '{proto}_{units}_{direction}'.format(proto=proto, units=units, direction=direction), proto.upper(), True)
-        for proto in ['tcp', 'udp', 'other']]
+    color = itertools.cycle(graph_colors[:3])
+    return [
+        DataSource(db_fname='traffic_{dev}.rrd'.format(dev=dev),
+            field='{proto}_{units}_{direction}'.format(proto=proto, units=units, direction=direction),
+            legend='{}-{}'.format(dev, proto.upper()),
+            is_area=True, color=color.next())
+                for dev, proto in itertools.product(['tun{}'.format(i) for i in range(1, 6)], ['tcp', 'udp', 'all'])
+    ] + [
+         DataSource('traffic_eth0.rrd', 'tcp_{units}_{direction}'.format(units=units, direction=direction), '', False, ''),
+         DataSource('traffic_eth0.rrd', 'udp_{units}_{direction}'.format(units=units, direction=direction), '', False, '', True),
+         DataSource('traffic_eth0.rrd', 'all_{units}_{direction}'.format(units=units, direction=direction), 'eth0', False, '#000000', True)
+    ]
 
-graph_colors = [ '#396AB1', '#DA7C30', '#3E9651', '#CC2529', '#535154', '#6B4C9A', '#922428', '#948B3D', '#00adb5', '#f08a5d' ]
 graphs = [
     Graph('hdd_rrqm_s', 'Read requests merged per second that were queued to the device', 'rrqm/s', hdd_ds('rrqm_s')),
     Graph('hdd_wrqm_s', 'Write requests merged per second that were queued to the device', 'wrqm/s ', hdd_ds('wrqm_s')),
@@ -64,12 +76,13 @@ def plot(graph, interval):
     if graph.vlabel:
         cmd += ['--vertical-label', graph.vlabel]
     ds_list = graph.ds if isinstance(graph.ds, list) else [graph.ds]
-    assert len(ds_list) < len(graph_colors)
     for i in range(0, len(ds_list)):
+        color = itertools.cycle(graph_colors)
         ds = ds_list[i]
         cmd.append('DEF:v{i}={db}:{field}:AVERAGE'.format(i=i, db=os.path.join(C.rrd_path, ds.db_fname), field=ds.field))
-        cmd.append('{type}:v{i}{color}:{legend}{stack}'.format(type='AREA' if ds.is_area else 'LINE1',
-            i=i, color=graph_colors[i], legend=ds.legend, stack=':STACK' if ds.is_area else ''))
+        cmd.append('{type}:v{i}{color}:{legend}{stack}'.format(
+            type='AREA' if ds.is_area else 'LINE1', i=i, color=color.next() if ds.color is None else ds.color,
+            legend=ds.legend, stack=':STACK' if ds.is_area or ds.stack else ''))
     #print(' '.join(cmd))
     rrd = subprocess.Popen(cmd, stdout=subprocess.PIPE)
     gz = gzip.open(os.path.join(C.graph_path, graph.fname + '_' + interval + '.svgz'), 'wb')

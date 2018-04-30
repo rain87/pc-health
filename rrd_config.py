@@ -4,7 +4,7 @@ rrd_path = '/var/lib/rrd'
 graph_path = '/var/www/pc-health'
 
 #rrd_path = '/tmp/test'
-#graph_path = '/tmp/test'
+#graph_path += '/test'
 
 IoStat = namedtuple('IoStat', 'rrqm_s wrqm_s r_s w_s rkB_s wkB_s avgrq_sz avgqu_sz await r_await w_await svctm util')
 CpuStat = namedtuple('CpuStat', 'user nice system iowait steal idle')
