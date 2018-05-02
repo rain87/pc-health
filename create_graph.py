@@ -18,16 +18,15 @@ def hdd_ds(field):
 
 def traffic_ds(units, direction):
     color = itertools.cycle(graph_colors[:3])
+    field = '_{units}_{direction}'.format(units=units, direction=direction)
     return [
-        DataSource(db_fname='traffic_{dev}.rrd'.format(dev=dev),
-            field='{proto}_{units}_{direction}'.format(proto=proto, units=units, direction=direction),
-            legend='{}-{}'.format(dev, proto.upper()),
-            is_area=True, color=color.next())
-        for dev, proto in itertools.product(['tun{}'.format(i) for i in range(1, 6)], ['tcp', 'udp', 'all'])
+        DataSource(db_fname='traffic_{dev}.rrd'.format(dev=dev), field=proto + field,
+            legend='{}-{}'.format(dev, proto.upper()), is_area=True, color=color.next())
+        for dev, proto in itertools.product(C.network_devices[:-1], ['tcp', 'udp', 'all'])
     ] + [
-         DataSource('traffic_eth0.rrd', 'tcp_{units}_{direction}'.format(units=units, direction=direction), '', False, ''),
-         DataSource('traffic_eth0.rrd', 'udp_{units}_{direction}'.format(units=units, direction=direction), '', False, '', True),
-         DataSource('traffic_eth0.rrd', 'all_{units}_{direction}'.format(units=units, direction=direction), 'eth0', False, '#000000', True)
+         DataSource('traffic_eth0.rrd', 'tcp' + field, '', False, ''),
+         DataSource('traffic_eth0.rrd', 'udp' + field, '', False, '', True),
+         DataSource('traffic_eth0.rrd', 'all' + field, 'eth0', False, '#000000', True)
     ]
 
 def connections_ds(direction):
@@ -56,10 +55,10 @@ graphs = [
     Graph('hdd_util', 'Percentage of CPU time during which I/O requests were issued to the device', '%', hdd_ds('util')),
     Graph('cpu_load', 'CPU loads', '%', [ DataSource('cpu.rrd', field, field, True) for field in C.CpuStat._fields if field != 'idle']),
     Graph('cpu_la', 'CPU load averages', None, [ DataSource('cpu_la.rrd', field, field, False) for field in C.CpuLa._fields]),
-    Graph('traffic_in_bytes', 'Incoming traffic', 'bytes/s', traffic_ds('bytes', 'in')),
-    Graph('traffic_out_bytes', 'Outgoing traffic', 'bytes/s', traffic_ds('bytes', 'out')),
-    Graph('traffic_in_pckts', 'Incoming traffic', 'packets/s', traffic_ds('pckts', 'in')),
-    Graph('traffic_out_pckts', 'Outgoing traffic', 'packets/s', traffic_ds('pckts', 'out')),
+    Graph('traffic_in_bytes', 'Incoming bytes', 'bytes/s', traffic_ds('bytes', 'in')),
+    Graph('traffic_out_bytes', 'Outgoing bytes', 'bytes/s', traffic_ds('bytes', 'out')),
+    Graph('traffic_in_pckts', 'Incoming packets', 'packets/s', traffic_ds('pckts', 'in')),
+    Graph('traffic_out_pckts', 'Outgoing packets', 'packets/s', traffic_ds('pckts', 'out')),
     Graph('incoming_connections', 'Incoming connections', 'count', connections_ds('in')),
     Graph('outgoing_connections', 'Outgoing connections', 'count', connections_ds('out')),
     Graph('sockets', 'Sockets', 'sockets',
