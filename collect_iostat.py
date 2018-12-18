@@ -46,6 +46,7 @@ for line in f:
         if m:
             io[m.group(1)] = C.IoStat(*[m.group(i) for i in range(2, 2 + len(C.IoStat._fields))])
 f.close()
+open(iostat_fname, 'w').close()
 
 def write_rrd(cmd, stat_tuple, rrd_fname, ts):
     if rrd_fname not in cmd:
@@ -61,8 +62,4 @@ for stat in stats:
         write_rrd(cmd, io, 'hdd_' + drive + '.rrd', stat.ts)
 
 for c in cmd.values():
-#    print c
     assert Popen(c).wait() == 0
-
-if stats:
-    open(iostat_fname, 'w').close()

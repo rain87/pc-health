@@ -2,6 +2,7 @@ from collections import namedtuple
 
 rrd_path = '/var/lib/rrd'
 graph_path = '/var/www/pc-health'
+smart_reports_path = '/var/www/pc-health/smart'
 
 #rrd_path = '/tmp/test'
 #graph_path += '/test'
@@ -16,3 +17,11 @@ Sockets = namedtuple('Sockets', 'total tcp estab closed orphaned synrecv tw tw2 
 Ups = namedtuple('Ups', 'LINEV LOADPCT BCHARGE TIMELEFT BATTV NUMXFERS TONBATT CUMONBATT')
 
 network_devices = 'tun1 tun2 tun3 tun4 tun5 eth0'.split(' ')
+drives = ['sd' + c for c in 'abcdef']
+
+SmartAttribute = namedtuple('SmartAttribute', 'cur wst thr raw')
+
+def attr_field_name_gtor(keys):
+    for num in keys:
+        for field in SmartAttribute._fields:
+            yield 'a' + str(num).zfill(3) + "_" + field

@@ -5,3 +5,4 @@
 ./collect_la.py
 ./collect_sockets.py
 ./collect_ups.py
+./collect_hdd_smart.py
