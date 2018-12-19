@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# coding=utf8
 
 import rrd_config as C
 import os
@@ -7,6 +8,8 @@ from collections import namedtuple
 import gzip
 import sys
 import itertools
+from smart_attributes import names as smart_names
+
 
 DataSource = namedtuple('DataSource', 'db_fname field legend is_area color stack')
 DataSource.__new__.__defaults__ = (False, None, False)
@@ -14,7 +17,7 @@ Graph = namedtuple('Graph', 'fname title vlabel ds')
 graph_colors = [ '#396AB1', '#DA7C30', '#3E9651', '#CC2529', '#535154', '#6B4C9A', '#922428', '#948B3D', '#00adb5', '#f08a5d' ]
 
 def hdd_ds(field):
-    return [ DataSource('hdd_sd' + d + '.rrd', field, 'sd' + d, False) for d in 'abcdef' ]
+    return [ DataSource('hdd_' + d + '.rrd', field, d, False) for d in C.drives ]
 
 def traffic_ds(units, direction):
     color = itertools.cycle(graph_colors[:3])
@@ -38,6 +41,11 @@ def connections_ds(direction):
             is_area=True, color=color.next())
         for dev, proto in itertools.product(C.network_devices, ['tcp', 'udp'])
     ]
+
+def smart_graph(attr, field, label=None):
+    sattr = str(attr).zfill(3)
+    return Graph('smart_' + sattr, '{} ({}-{})'.format(smart_names[attr], sattr, field), label,
+        [ DataSource('smart_' + hdd + '.rrd', 'a{}_{}'.format(sattr, field), hdd, False) for hdd in C.drives ])
 
 graphs = [
     Graph('hdd_rrqm_s', 'Read requests merged per second that were queued to the device', 'rrqm/s', hdd_ds('rrqm_s')),
@@ -69,6 +77,15 @@ graphs = [
     Graph('ups_misc', 'Misc UPS stats', None, [ DataSource('ups.rrd', 'TIMELEFT', 'Time on battery left', False),
         DataSource('ups.rrd', 'NUMXFERS', 'Number of transfers', False), DataSource('ups.rrd', 'TONBATT', 'Time on battery', False),
         DataSource('ups.rrd', 'CUMONBATT', 'CUMONBATT', False) ]),
+    smart_graph(194, 'raw', '°C'),
+    smart_graph(1, 'cur'),
+    smart_graph(3, 'raw', 'msec'),
+    smart_graph(4, 'raw'),
+    smart_graph(7, 'cur'),
+    smart_graph(9, 'raw'),
+    smart_graph(11, 'raw'),
+    smart_graph(12, 'raw'),
+    smart_graph(195, 'cur'),
 ]
 
 graph_intervals = {

@@ -20,10 +20,10 @@ smart = { device.name: { i: convert_attributes(device.attributes[i])
 for hdd, attributes in smart.iteritems():
     cmd = ['rrdtool', 'update', os.path.join(C.rrd_path, 'smart_' + hdd + '.rrd'), '--template'] +\
         [':'.join(C.attr_field_name_gtor(attributes.keys())), '--'] +\
-        ['N:' + ':'.join([str(attributes[k][i]) for k in attributes.keys() for i in range(0, len(C.SmartAttribute._fields))])]
+        ['N:' + ':'.join(str(attributes[k][i]) for k in attributes.keys() for i in range(0, len(C.SmartAttribute._fields)))]
     assert Popen(cmd).wait() == 0
 
-with open(os.path.join(C.smart_reports_path, 'latest.html'), 'w') as f:
+with open(os.path.join(C.graph_path, 'smart.html'), 'w') as f:
     f.write('<html><body><table border=1>')
     devices = sorted(smart.keys())
     f.write('<tr><td>Attribute name; value / worst / threshold (raw)</td>' + ''.join('<td>' + dev + '</td>' for dev in devices) + '</tr>')

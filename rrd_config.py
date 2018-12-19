@@ -2,7 +2,6 @@ from collections import namedtuple
 
 rrd_path = '/var/lib/rrd'
 graph_path = '/var/www/pc-health'
-smart_reports_path = '/var/www/pc-health/smart'
 
 #rrd_path = '/tmp/test'
 #graph_path += '/test'
