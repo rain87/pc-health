@@ -73,7 +73,7 @@ graphs = [
         [ DataSource('sockets.rrd', field, field, True) for field in 'estab closed orphaned synrecv tw tw2'.split(' ') ] +\
         [ DataSource('sockets.rrd', field, field, False) for field in 'total tcp ports'.split(' ') ]),
     Graph('ups_v', 'Voltages', 'volts', [ DataSource('ups.rrd', 'LINEV', 'AC line', False), DataSource('ups.rrd', 'BATTV', 'UPS battery', False)]),
-    Graph('ups_load', 'Load and charge', '%', [ DataSource('ups.rrd', 'LOADPCT', 'UPS load', False) ]),
+    Graph('ups_load', 'Load and charge', '%', [ DataSource('ups.rrd', 'LOADPCT', 'UPS load', False), DataSource('ups.rrd', 'BCHARGE', 'Battery charge', False) ]),
     Graph('ups_misc', 'Misc UPS stats', None, [ DataSource('ups.rrd', 'TIMELEFT', 'Time on battery left', False),
         DataSource('ups.rrd', 'NUMXFERS', 'Number of transfers', False), DataSource('ups.rrd', 'TONBATT', 'Time on battery', False),
         DataSource('ups.rrd', 'CUMONBATT', 'CUMONBATT', False) ]),
