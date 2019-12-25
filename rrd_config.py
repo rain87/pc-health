@@ -16,7 +16,7 @@ Sockets = namedtuple('Sockets', 'total tcp estab closed orphaned synrecv tw tw2 
 Ups = namedtuple('Ups', 'LINEV LOADPCT BCHARGE TIMELEFT BATTV NUMXFERS TONBATT CUMONBATT')
 
 network_devices = 'tun1 tun2 tun3 tun4 tun5 eth0'.split(' ')
-drives = ['sd' + c for c in 'abcdef']
+drives = ['sd' + c for c in 'abcdefg']
 
 SmartAttribute = namedtuple('SmartAttribute', 'cur wst thr raw')
 

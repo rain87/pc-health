@@ -14,7 +14,7 @@ def convert_attributes(smart):
     return C.SmartAttribute(int(smart.value), int(smart.worst), int(smart.thresh), int(smart.raw))
 
 smart = { device.name: { i: convert_attributes(device.attributes[i])
-                              for i in range(0, 256) if device.attributes[i] }
+                              for i in range(0, 256) if device.attributes[i] and i in smart_names }
               for device in DeviceList().devices }
 
 for hdd, attributes in smart.iteritems():
