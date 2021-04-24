@@ -17,7 +17,7 @@ iostat_fname = '/var/log/iostat.log'
 number_pattern = '(\d+[\.,]\d+)'
 ts_rx = re.compile('(\d\d)\.(\d\d)\.(\d\d) (\d\d):(\d\d):(\d\d)')
 cpu_rx = re.compile('\s*' + '\s+'.join([number_pattern] * len(C.CpuStat._fields)))
-io_rx = re.compile('(sd\w)\s+' + '\s+'.join([number_pattern] * len(C.IoStat._fields)))
+io_rx = re.compile('(sd\w|nvme\d+n\d+)\s+' + '\s+'.join([number_pattern] * len(C.IoStat._fields)))
 
 ts = None
 cpu = None

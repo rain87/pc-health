@@ -11,7 +11,10 @@ from smart_attributes import names as smart_names
 from subprocess import Popen
 
 def convert_attributes(smart):
-    return C.SmartAttribute(int(smart.value), int(smart.worst), int(smart.thresh), int(smart.raw))
+    try:
+        return C.SmartAttribute(int(smart.value), int(smart.worst), int(smart.thresh), int(smart.raw))
+    except Exception as e:
+        return C.SmartAttribute(str(e), '', '', '')
 
 smart = { device.name: { i: convert_attributes(device.attributes[i])
                               for i in range(0, 256) if device.attributes[i] and i in smart_names }
